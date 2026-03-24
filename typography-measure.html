@@ -468,23 +468,9 @@
         bodyMw: 1
       };
 
-      const labels = {
-        titleLh: 'интерлиньяж заголовка',
-        titleLs: 'трекинг заголовка',
-        bodyLh: 'интерлиньяж текста',
-        bodyMw: 'ширина колонки (ch)'
-      };
-
       let matches = 0;
-      const detailParts = [];
-
       for (const key of Object.keys(diffs)) {
-        if (diffs[key] <= tolerances[key]) {
-          matches++;
-          detailParts.push(`✓ ${labels[key]}`);
-        } else {
-          detailParts.push(`✗ ${labels[key]} (Δ=${diffs[key]})`);
-        }
+        if (diffs[key] <= tolerances[key]) matches++;
       }
 
       const accuracy = Math.round((matches / 4) * 100);
@@ -497,7 +483,7 @@
         setTimeout(() => previewArticle.classList.remove('checking'), 400);
       } else {
         scoreText.textContent = `Точность: ${accuracy}%`;
-        detailsText.textContent = detailParts.join(' • ');
+        detailsText.textContent = '';
       }
 
       resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

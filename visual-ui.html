@@ -462,22 +462,9 @@
         btnRadius: 1
       };
 
-      const labels = {
-        radius: 'скругление карточки',
-        pad: 'отступы',
-        shadow: 'размытие тени',
-        btnRadius: 'скругление кнопки'
-      };
-
       let matches = 0;
-      const parts = [];
       for (const key of Object.keys(diffs)) {
-        if (diffs[key] <= tolerances[key]) {
-          matches++;
-          parts.push(`✓ ${labels[key]}`);
-        } else {
-          parts.push(`✗ ${labels[key]} (Δ=${diffs[key]})`);
-        }
+        if (diffs[key] <= tolerances[key]) matches++;
       }
 
       const accuracy = Math.round((matches / 4) * 100);
@@ -490,7 +477,7 @@
         setTimeout(() => previewUi.classList.remove('checking'), 400);
       } else {
         scoreText.textContent = `Точность: ${accuracy}%`;
-        detailsText.textContent = parts.join(' • ');
+        detailsText.textContent = '';
       }
 
       resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

@@ -616,22 +616,13 @@
         labelWeight: 50
       };
       
-      // Подсчёт точности
       let matches = 0;
-      let details = [];
-      
       for (const [key, diff] of Object.entries(diffs)) {
-        if (diff <= tolerances[key]) {
-          matches++;
-          details.push(`✓ ${key}`);
-        } else {
-          details.push(`✗ ${key} (отклонение: ${diff})`);
-        }
+        if (diff <= tolerances[key]) matches++;
       }
       
       const accuracy = Math.round((matches / 6) * 100);
       
-      // Показ результата
       resultPanel.className = `result-panel show ${accuracy === 100 ? 'success' : 'error'}`;
       
       if (accuracy === 100) {
@@ -641,7 +632,7 @@
         setTimeout(() => previewSlide.classList.remove('checking'), 400);
       } else {
         scoreText.textContent = `Точность: ${accuracy}%`;
-        detailsText.textContent = details.join(' • ');
+        detailsText.textContent = '';
       }
       
       // Скролл к результату
