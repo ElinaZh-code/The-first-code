@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тренажёр: Интерлиньяж и мера строки</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --title-lh: 1.25;
+      --title-ls: 0em;
+      --body-lh: 1.5;
+      --body-mw: 55ch;
+
+      --primary: #3498db;
+      --primary-hover: #2980b9;
+      --success: #27ae60;
+      --error: #e74c3c;
+      --bg: #f8f9fa;
+      --card-bg: #fff;
+      --text: #2c3e50;
+      --text-light: #7f8c8d;
+      --border: #ecf0f1;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      padding: 20px 0 30px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .subtitle {
+      color: var(--text-light);
+      font-size: 1rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .site-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .site-nav a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      transition: background 0.2s, color 0.2s;
+    }
+    .site-nav a:hover {
+      background: var(--primary-hover);
+      color: #fff;
+    }
+    .site-nav a[aria-current="page"] {
+      background: var(--primary);
+      color: #fff;
+      pointer-events: none;
+    }
+
+    .controls-panel {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .control-group {
+      background: var(--bg);
+      padding: 14px 16px;
+      border-radius: 8px;
+    }
+
+    .control-group h4 {
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .control-row:last-child { margin-bottom: 0; }
+
+    .control-row label {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    .control-row input[type="range"] {
+      flex: 2;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .control-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .control-row input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+    .control-row input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+    }
+
+    .value-display {
+      min-width: 56px;
+      text-align: right;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--primary);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #d5dbdb;
+    }
+
+    .preview-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    @media (min-width: 900px) {
+      .preview-section { grid-template-columns: 1fr 1fr; }
+    }
+
+    .preview-card, .reference-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .preview-card h3, .reference-card h3 {
+      font-size: 1rem;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .article-frame {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .article-kicker {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-light);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .article-title {
+      font-size: 1.65rem;
+      font-weight: 700;
+      line-height: var(--title-lh);
+      letter-spacing: var(--title-ls);
+      margin-bottom: 12px;
+    }
+
+    .article-lead {
+      font-size: 1.05rem;
+      color: var(--text-light);
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .article-body {
+      font-size: 0.98rem;
+      line-height: var(--body-lh);
+      max-width: var(--body-mw);
+    }
+
+    .article-body p + p {
+      margin-top: 0.9em;
+    }
+
+    .result-panel {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+    .result-panel.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result-panel.success {
+      background: rgba(39, 174, 96, 0.15);
+      border: 2px solid var(--success);
+      color: var(--success);
+    }
+    .result-panel.error {
+      background: rgba(231, 76, 60, 0.15);
+      border: 2px solid var(--error);
+      color: var(--error);
+    }
+    .result-panel .score {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+    .result-panel .details {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.01); }
+    }
+    .checking { animation: pulse 0.4s ease; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="site-nav" aria-label="Упражнения тренажёра">
+      <a href="./index.html">Упр. 1: Размер и вес</a>
+      <a href="./typography-measure.html" aria-current="page">Упр. 2: Интерлиньяж и мера</a>
+      <a href="./visual-ui.html">Упр. 3: Визуал</a>
+    </nav>
+
+    <header>
+      <h1>📏 Интерлиньяж, трекинг и мера строки</h1>
+      <p class="subtitle">
+        Фрагмент лонгрида. Подберите межстрочный интервал заголовка, трекинг (межбуквенное расстояние),
+        интерлиньяж основного текста и оптимальную ширину колонки (в символах), чтобы они совпали с эталоном.
+      </p>
+    </header>
+
+    <div class="controls-panel">
+      <div class="controls-grid">
+        <div class="control-group">
+          <h4>📰 Заголовок</h4>
+          <div class="control-row">
+            <label>Интерлиньяж</label>
+            <input type="range" id="title-lh" min="105" max="145" value="125" step="1">
+            <span class="value-display" id="title-lh-val">1.25</span>
+          </div>
+          <div class="control-row">
+            <label>Трекинг (×0.01&nbsp;em)</label>
+            <input type="range" id="title-ls" min="-8" max="12" value="0" step="1">
+            <span class="value-display" id="title-ls-val">0</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h4>¶ Основной текст</h4>
+          <div class="control-row">
+            <label>Интерлиньяж</label>
+            <input type="range" id="body-lh" min="135" max="195" value="150" step="1">
+            <span class="value-display" id="body-lh-val">1.50</span>
+          </div>
+          <div class="control-row">
+            <label>Ширина колонки</label>
+            <input type="range" id="body-mw" min="42" max="78" value="55" step="1">
+            <span class="value-display" id="body-mw-val">55ch</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="check-btn">✅ Проверить</button>
+        <button type="button" class="btn btn-secondary" id="reset-btn">🔄 Сбросить</button>
+        <button type="button" class="btn btn-secondary" id="show-answer-btn">💡 Показать ответ</button>
+      </div>
+
+      <div class="result-panel" id="result-panel">
+        <div class="score" id="score-text"></div>
+        <div class="details" id="details-text"></div>
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-card">
+        <h3>Ваш вариант</h3>
+        <div class="article-frame" id="preview-article" aria-label="Предпросмотр статьи">
+          <div class="article-kicker">Типографика</div>
+          <div class="article-title">Почему длина строки важнее размера шрифта</div>
+          <div class="article-lead">Короткая колонка и ритм строк делают текст заметно легче для глаз.</div>
+          <div class="article-body">
+            <p>
+              Читатель не замечает интерлиньяж отдельно от содержания — пока тот не промахивается.
+              Слишком плотный текст утомляет, слишком разреженный теряет связность абзацев.
+            </p>
+            <p>
+              Ширина в единицах <em>ch</em> примерно соответствует среднему числу символов в строке моноширинного шрифта;
+              в вёрстке это удобная мера для контроля «объёма» строки без линейки.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reference-card">
+        <h3>Эталон</h3>
+        <div class="article-frame" id="reference-article" style="--title-lh:1.12;--title-ls:-0.02em;--body-lh:1.62;--body-mw:58ch;">
+          <div class="article-kicker">Типографика</div>
+          <div class="article-title">Почему длина строки важнее размера шрифта</div>
+          <div class="article-lead">Короткая колонка и ритм строк делают текст заметно легче для глаз.</div>
+          <div class="article-body">
+            <p>
+              Читатель не замечает интерлиньяж отдельно от содержания — пока тот не промахивается.
+              Слишком плотный текст утомляет, слишком разреженный теряет связность абзацев.
+            </p>
+            <p>
+              Ширина в единицах <em>ch</em> примерно соответствует среднему числу символов в строке моноширинного шрифта;
+              в вёрстке это удобная мера для контроля «объёма» строки без линейки.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TARGET = {
+      titleLh: 112,
+      titleLs: -2,
+      bodyLh: 162,
+      bodyMw: 58
+    };
+
+    const sliders = {
+      titleLh: document.getElementById('title-lh'),
+      titleLs: document.getElementById('title-ls'),
+      bodyLh: document.getElementById('body-lh'),
+      bodyMw: document.getElementById('body-mw')
+    };
+
+    const displays = {
+      titleLh: document.getElementById('title-lh-val'),
+      titleLs: document.getElementById('title-ls-val'),
+      bodyLh: document.getElementById('body-lh-val'),
+      bodyMw: document.getElementById('body-mw-val')
+    };
+
+    const previewArticle = document.getElementById('preview-article');
+    const resultPanel = document.getElementById('result-panel');
+    const scoreText = document.getElementById('score-text');
+    const detailsText = document.getElementById('details-text');
+
+    function updateStyles() {
+      const tlh = Number(sliders.titleLh.value) / 100;
+      const tls = Number(sliders.titleLs.value) * 0.01;
+      const blh = Number(sliders.bodyLh.value) / 100;
+      const bmw = `${sliders.bodyMw.value}ch`;
+
+      previewArticle.style.setProperty('--title-lh', String(tlh));
+      previewArticle.style.setProperty('--title-ls', `${tls}em`);
+      previewArticle.style.setProperty('--body-lh', String(blh));
+      previewArticle.style.setProperty('--body-mw', bmw);
+
+      displays.titleLh.textContent = tlh.toFixed(2);
+      displays.titleLs.textContent = String(sliders.titleLs.value);
+      displays.bodyLh.textContent = blh.toFixed(2);
+      displays.bodyMw.textContent = `${sliders.bodyMw.value}ch`;
+    }
+
+    function checkAnswer() {
+      const current = {
+        titleLh: parseInt(sliders.titleLh.value, 10),
+        titleLs: parseInt(sliders.titleLs.value, 10),
+        bodyLh: parseInt(sliders.bodyLh.value, 10),
+        bodyMw: parseInt(sliders.bodyMw.value, 10)
+      };
+
+      const diffs = {
+        titleLh: Math.abs(current.titleLh - TARGET.titleLh),
+        titleLs: Math.abs(current.titleLs - TARGET.titleLs),
+        bodyLh: Math.abs(current.bodyLh - TARGET.bodyLh),
+        bodyMw: Math.abs(current.bodyMw - TARGET.bodyMw)
+      };
+
+      const tolerances = {
+        titleLh: 2,
+        titleLs: 1,
+        bodyLh: 2,
+        bodyMw: 1
+      };
+
+      const labels = {
+        titleLh: 'интерлиньяж заголовка',
+        titleLs: 'трекинг заголовка',
+        bodyLh: 'интерлиньяж текста',
+        bodyMw: 'ширина колонки (ch)'
+      };
+
+      let matches = 0;
+      const detailParts = [];
+
+      for (const key of Object.keys(diffs)) {
+        if (diffs[key] <= tolerances[key]) {
+          matches++;
+          detailParts.push(`✓ ${labels[key]}`);
+        } else {
+          detailParts.push(`✗ ${labels[key]} (Δ=${diffs[key]})`);
+        }
+      }
+
+      const accuracy = Math.round((matches / 4) * 100);
+      resultPanel.className = `result-panel show ${accuracy === 100 ? 'success' : 'error'}`;
+
+      if (accuracy === 100) {
+        scoreText.textContent = '🎉 Идеально!';
+        detailsText.textContent = 'Интерлиньяж, трекинг и мера строки совпадают с эталоном.';
+        previewArticle.classList.add('checking');
+        setTimeout(() => previewArticle.classList.remove('checking'), 400);
+      } else {
+        scoreText.textContent = `Точность: ${accuracy}%`;
+        detailsText.textContent = detailParts.join(' • ');
+      }
+
+      resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function resetValues() {
+      sliders.titleLh.value = 125;
+      sliders.titleLs.value = 0;
+      sliders.bodyLh.value = 150;
+      sliders.bodyMw.value = 55;
+      updateStyles();
+      resultPanel.classList.remove('show');
+    }
+
+    function showAnswer() {
+      sliders.titleLh.value = TARGET.titleLh;
+      sliders.titleLs.value = TARGET.titleLs;
+      sliders.bodyLh.value = TARGET.bodyLh;
+      sliders.bodyMw.value = TARGET.bodyMw;
+      updateStyles();
+      resultPanel.className = 'result-panel show success';
+      scoreText.textContent = '💡 Эталонные значения выставлены';
+      detailsText.textContent = 'Сбросьте и попробуйте подобрать параметры с нуля.';
+    }
+
+    function init() {
+      Object.values(sliders).forEach((el) => el.addEventListener('input', updateStyles));
+      document.getElementById('check-btn').addEventListener('click', checkAnswer);
+      document.getElementById('reset-btn').addEventListener('click', resetValues);
+      document.getElementById('show-answer-btn').addEventListener('click', showAnswer);
+      updateStyles();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

@@ -328,10 +328,44 @@
     .checking {
       animation: pulse 0.4s ease;
     }
+    
+    /* ===== НАВИГАЦИЯ (GitHub Pages: относительные ссылки) ===== */
+    .site-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .site-nav a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      transition: background 0.2s, color 0.2s;
+    }
+    .site-nav a:hover {
+      background: var(--primary-hover);
+      color: #fff;
+    }
+    .site-nav a[aria-current="page"] {
+      background: var(--primary);
+      color: #fff;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <nav class="site-nav" aria-label="Упражнения тренажёра">
+      <a href="./index.html" aria-current="page">Упр. 1: Размер и вес</a>
+      <a href="./typography-measure.html">Упр. 2: Интерлиньяж и мера</a>
+      <a href="./visual-ui.html">Упр. 3: Визуал</a>
+    </nav>
     
     <!-- ШАПКА -->
     <header>
@@ -531,7 +565,7 @@
     const previewSlide = document.getElementById('preview-slide');
     const resultPanel = document.getElementById('result-panel');
     const scoreText = document.getElementById('score-text');
-    //const detailsText = document.getElementById('details-text');
+    const detailsText = document.getElementById('details-text');
     
     // ===== ОБНОВЛЕНИЕ СТИЛЕЙ =====
     function updateStyles() {

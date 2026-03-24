@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тренажёр: Визуал карточки</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #3498db;
+      --primary-hover: #2980b9;
+      --success: #27ae60;
+      --error: #e74c3c;
+      --bg: #f8f9fa;
+      --card-bg: #fff;
+      --text: #2c3e50;
+      --text-light: #7f8c8d;
+      --border: #ecf0f1;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      padding: 20px 0 30px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .subtitle {
+      color: var(--text-light);
+      font-size: 1rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .site-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .site-nav a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      transition: background 0.2s, color 0.2s;
+    }
+    .site-nav a:hover {
+      background: var(--primary-hover);
+      color: #fff;
+    }
+    .site-nav a[aria-current="page"] {
+      background: var(--primary);
+      color: #fff;
+      pointer-events: none;
+    }
+
+    .controls-panel {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .control-group {
+      background: var(--bg);
+      padding: 14px 16px;
+      border-radius: 8px;
+    }
+
+    .control-group h4 {
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .control-row:last-child { margin-bottom: 0; }
+
+    .control-row label {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    .control-row input[type="range"] {
+      flex: 2;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .control-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .control-row input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+    .control-row input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+    }
+
+    .value-display {
+      min-width: 44px;
+      text-align: right;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--primary);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #d5dbdb;
+    }
+
+    .preview-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    @media (min-width: 900px) {
+      .preview-section { grid-template-columns: 1fr 1fr; }
+    }
+
+    .preview-card, .reference-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .preview-card h3, .reference-card h3 {
+      font-size: 1rem;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .visual-canvas {
+      background: linear-gradient(160deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+      border-radius: 14px;
+      padding: 28px;
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ui-card {
+      width: 100%;
+      max-width: 280px;
+      background: #fff;
+      color: var(--text);
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+
+      border-radius: var(--ui-radius, 12px);
+      padding: var(--ui-pad, 18px);
+      box-shadow: 0 12px var(--ui-shadow, 16px) rgba(30, 41, 59, 0.14);
+    }
+
+    .ui-card-thumb {
+      height: 100px;
+      border-radius: calc(var(--ui-radius, 12px) * 0.65);
+      background: linear-gradient(125deg, #6366f1, #8b5cf6);
+      margin-bottom: 14px;
+    }
+
+    .ui-card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .ui-card-price {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      margin-bottom: 14px;
+    }
+
+    .ui-card-cta {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      background: #0ea5e9;
+      cursor: default;
+
+      border-radius: var(--ui-btn-radius, 8px);
+    }
+
+    .result-panel {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+    .result-panel.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .result-panel.success {
+      background: rgba(39, 174, 96, 0.15);
+      border: 2px solid var(--success);
+      color: var(--success);
+    }
+    .result-panel.error {
+      background: rgba(231, 76, 60, 0.15);
+      border: 2px solid var(--error);
+      color: var(--error);
+    }
+    .result-panel .score {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+    .result-panel .details {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    .checking { animation: pulse 0.4s ease; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="site-nav" aria-label="Упражнения тренажёра">
+      <a href="./index.html">Упр. 1: Размер и вес</a>
+      <a href="./typography-measure.html">Упр. 2: Интерлиньяж и мера</a>
+      <a href="./visual-ui.html" aria-current="page">Упр. 3: Визуал</a>
+    </nav>
+
+    <header>
+      <h1>🖼️ Карточка интерфейса</h1>
+      <p class="subtitle">
+        Настройте визуальный ритм карточки товара: скругление контура, внутренние поля,
+        «вес» тени и форму кнопки — так, чтобы совпало с эталоном справа.
+      </p>
+    </header>
+
+    <div class="controls-panel">
+      <div class="controls-grid">
+        <div class="control-group">
+          <h4>🔲 Карточка</h4>
+          <div class="control-row">
+            <label>Скругление</label>
+            <input type="range" id="ui-radius" min="8" max="26" value="12" step="1">
+            <span class="value-display" id="ui-radius-val">12px</span>
+          </div>
+          <div class="control-row">
+            <label>Внутренний отступ</label>
+            <input type="range" id="ui-pad" min="14" max="32" value="18" step="1">
+            <span class="value-display" id="ui-pad-val">18px</span>
+          </div>
+        </div>
+        <div class="control-group">
+          <h4>✨ Глубина и кнопка</h4>
+          <div class="control-row">
+            <label>Размытие тени</label>
+            <input type="range" id="ui-shadow" min="6" max="34" value="14" step="1">
+            <span class="value-display" id="ui-shadow-val">14px</span>
+          </div>
+          <div class="control-row">
+            <label>Скругление кнопки</label>
+            <input type="range" id="ui-btn-radius" min="4" max="18" value="12" step="1">
+            <span class="value-display" id="ui-btn-radius-val">12px</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="check-btn">✅ Проверить</button>
+        <button type="button" class="btn btn-secondary" id="reset-btn">🔄 Сбросить</button>
+        <button type="button" class="btn btn-secondary" id="show-answer-btn">💡 Показать ответ</button>
+      </div>
+
+      <div class="result-panel" id="result-panel">
+        <div class="score" id="score-text"></div>
+        <div class="details" id="details-text"></div>
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-card">
+        <h3>Ваш вариант</h3>
+        <div class="visual-canvas">
+          <div class="ui-card" id="preview-ui" aria-label="Предпросмотр карточки">
+            <div class="ui-card-thumb" aria-hidden="true"></div>
+            <div class="ui-card-title">Беспроводные наушники</div>
+            <div class="ui-card-price">от 7 990 ₽ · доставка завтра</div>
+            <button type="button" class="ui-card-cta">В корзину</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="reference-card">
+        <h3>Эталон</h3>
+        <div class="visual-canvas">
+          <div class="ui-card" id="reference-ui" style="--ui-radius:16px;--ui-pad:22px;--ui-shadow:20px;--ui-btn-radius:10px;">
+            <div class="ui-card-thumb" aria-hidden="true"></div>
+            <div class="ui-card-title">Беспроводные наушники</div>
+            <div class="ui-card-price">от 7 990 ₽ · доставка завтра</div>
+            <button type="button" class="ui-card-cta">В корзину</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TARGET = {
+      radius: 16,
+      pad: 22,
+      shadow: 20,
+      btnRadius: 10
+    };
+
+    const sliders = {
+      radius: document.getElementById('ui-radius'),
+      pad: document.getElementById('ui-pad'),
+      shadow: document.getElementById('ui-shadow'),
+      btnRadius: document.getElementById('ui-btn-radius')
+    };
+
+    const displays = {
+      radius: document.getElementById('ui-radius-val'),
+      pad: document.getElementById('ui-pad-val'),
+      shadow: document.getElementById('ui-shadow-val'),
+      btnRadius: document.getElementById('ui-btn-radius-val')
+    };
+
+    const previewUi = document.getElementById('preview-ui');
+    const resultPanel = document.getElementById('result-panel');
+    const scoreText = document.getElementById('score-text');
+    const detailsText = document.getElementById('details-text');
+
+    function updateStyles() {
+      const r = sliders.radius.value;
+      const p = sliders.pad.value;
+      const s = sliders.shadow.value;
+      const b = sliders.btnRadius.value;
+
+      previewUi.style.setProperty('--ui-radius', `${r}px`);
+      previewUi.style.setProperty('--ui-pad', `${p}px`);
+      previewUi.style.setProperty('--ui-shadow', `${s}px`);
+      previewUi.style.setProperty('--ui-btn-radius', `${b}px`);
+
+      displays.radius.textContent = `${r}px`;
+      displays.pad.textContent = `${p}px`;
+      displays.shadow.textContent = `${s}px`;
+      displays.btnRadius.textContent = `${b}px`;
+    }
+
+    function checkAnswer() {
+      const current = {
+        radius: parseInt(sliders.radius.value, 10),
+        pad: parseInt(sliders.pad.value, 10),
+        shadow: parseInt(sliders.shadow.value, 10),
+        btnRadius: parseInt(sliders.btnRadius.value, 10)
+      };
+
+      const diffs = {
+        radius: Math.abs(current.radius - TARGET.radius),
+        pad: Math.abs(current.pad - TARGET.pad),
+        shadow: Math.abs(current.shadow - TARGET.shadow),
+        btnRadius: Math.abs(current.btnRadius - TARGET.btnRadius)
+      };
+
+      const tolerances = {
+        radius: 1,
+        pad: 1,
+        shadow: 2,
+        btnRadius: 1
+      };
+
+      const labels = {
+        radius: 'скругление карточки',
+        pad: 'отступы',
+        shadow: 'размытие тени',
+        btnRadius: 'скругление кнопки'
+      };
+
+      let matches = 0;
+      const parts = [];
+      for (const key of Object.keys(diffs)) {
+        if (diffs[key] <= tolerances[key]) {
+          matches++;
+          parts.push(`✓ ${labels[key]}`);
+        } else {
+          parts.push(`✗ ${labels[key]} (Δ=${diffs[key]})`);
+        }
+      }
+
+      const accuracy = Math.round((matches / 4) * 100);
+      resultPanel.className = `result-panel show ${accuracy === 100 ? 'success' : 'error'}`;
+
+      if (accuracy === 100) {
+        scoreText.textContent = '🎉 Идеально!';
+        detailsText.textContent = 'Карточка визуально совпадает с эталоном.';
+        previewUi.classList.add('checking');
+        setTimeout(() => previewUi.classList.remove('checking'), 400);
+      } else {
+        scoreText.textContent = `Точность: ${accuracy}%`;
+        detailsText.textContent = parts.join(' • ');
+      }
+
+      resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function resetValues() {
+      sliders.radius.value = 12;
+      sliders.pad.value = 18;
+      sliders.shadow.value = 14;
+      sliders.btnRadius.value = 12;
+      updateStyles();
+      resultPanel.classList.remove('show');
+    }
+
+    function showAnswer() {
+      sliders.radius.value = TARGET.radius;
+      sliders.pad.value = TARGET.pad;
+      sliders.shadow.value = TARGET.shadow;
+      sliders.btnRadius.value = TARGET.btnRadius;
+      updateStyles();
+      resultPanel.className = 'result-panel show success';
+      scoreText.textContent = '💡 Эталон применён';
+      detailsText.textContent = 'Сбросьте и попробуйте воспроизвести на глаз.';
+    }
+
+    function init() {
+      Object.values(sliders).forEach((el) => el.addEventListener('input', updateStyles));
+      document.getElementById('check-btn').addEventListener('click', checkAnswer);
+      document.getElementById('reset-btn').addEventListener('click', resetValues);
+      document.getElementById('show-answer-btn').addEventListener('click', showAnswer);
+      updateStyles();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
